@@ -38,7 +38,7 @@
       const surname = document.getElementById('surname').value;
       const name = document.getElementById('name').value;
 
-      fetch('ВАШ_URL_СКРІПТА', {
+      fetch('https://script.google.com/macros/s/AKfycbxv8x-gA3KXlyxrhFvsOVM8mYrwZndq1nyAOJU8F__rb1jG6SABt5O_lvz0IpYHS_t2Mg/exec', {
         method: 'POST',
         body: JSON.stringify({ surname, name }),
         headers: {
