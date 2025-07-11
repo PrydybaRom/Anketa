@@ -12,7 +12,11 @@
       background: #f9f9f9;
       color: #333;
     }
-    .question, .personal-info, .results {
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .personal-info, .question {
       background: #fff;
       padding: 15px;
       margin-bottom: 15px;
@@ -20,19 +24,15 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     label {
-      font-weight: bold;
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      font-weight: bold;
     }
     .options label {
       font-weight: normal;
       margin-left: 20px;
       display: block;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
     button {
       background: #3498db;
@@ -43,15 +43,20 @@
       cursor: pointer;
       border-radius: 5px;
       display: block;
-      margin: 20px auto;
+      margin: 20px auto 40px auto;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .results {
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 10px;
     }
-    th, td {
-      border: 1px solid #bbb;
-      padding: 8px;
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul li {
+      margin-bottom: 10px;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -66,14 +71,13 @@
     </div>
 
     <div id="questions"></div>
+
     <button type="submit">Показати результати</button>
   </form>
 
   <div id="results" class="results"></div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyoQ5PekoOq1IVI541y53Im-sEMZy9-rZ8P-nZDOGh9EFU0E0Md2DQtH9REsxs4KZeG/exec";
-
     const questions = [
       { text: "Я швидко звикаю до нових умов", group: "Адаптивність" },
       { text: "Я краще працюю самостійно, ніж у команді", group: "Інтровертність" },
@@ -94,7 +98,7 @@
       { text: "Я часто мислю наперед, враховуючи наслідки", group: "Стратег" },
       { text: "Я легко тримаю свої емоції під контролем", group: "Емоційна регуляція" },
       { text: "Я отримую задоволення від роботи в команді", group: "Екстравертність" },
-      { text: "Мені важливо відчувати сенс у роботі", group: "Цінності" },
+      { text: "Мені важливо відчувати сенс у роботі", group: "Цінності" }
     ];
 
     const answerLabels = [
@@ -122,6 +126,8 @@
         `</div>`;
       container.appendChild(div);
     });
+
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyoQ5PekoOq1IVI541y53Im-sEMZy9-rZ8P-nZDOGh9EFU0E0Md2DQtH9REsxs4KZeG/exec";
 
     document.getElementById("testForm").addEventListener("submit", function (e) {
       e.preventDefault();
@@ -154,31 +160,28 @@
         }
       }
 
-      let output = `<h2>Результати для ${surname} ${name}</h2><table><tr><th>Категорія</th><th>Середнє</th><th>Рівень</th></tr>`;
-      for (const g in results) {
-        output += `<tr><td>${g}</td><td>${results[g].avg}</td><td>${results[g].level}</td></tr>`;
-      }
-      output += `</table>`;
+      // Сортуємо за avg спадання, беремо топ-3
+      const sortedResults = Object.entries(results)
+        .sort((a, b) => b[1].avg - a[1].avg)
+        .slice(0, 3);
+
+      // Виводимо на екран топ-3
+      let output = `<h2>Топ-3 характеристики для ${surname} ${name}</h2><ul>`;
+      sortedResults.forEach(([cat, obj]) => {
+        output += `<li><b>${cat}</b>: ${obj.avg} — ${obj.level}</li>`;
+      });
+      output += "</ul>";
       document.getElementById("results").innerHTML = output;
 
+      // Відправляємо всі результати у Google Таблицю
       fetch(scriptURL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          surname: surname,
-          name: name,
-          results: results
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ surname, name, results })
       })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Успішно:", data);
-      })
-      .catch(error => {
-        console.error("Помилка при надсиланні:", error);
-      });
+        .then(res => res.json())
+        .then(data => console.log("Успішно надіслано:", data))
+        .catch(err => console.error("Помилка при надсиланні:", err));
     });
   </script>
 </body>
