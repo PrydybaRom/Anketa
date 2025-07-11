@@ -12,11 +12,7 @@
       background: #f9f9f9;
       color: #333;
     }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-    }
-    .personal-info, .question {
+    .question, .personal-info, .results {
       background: #fff;
       padding: 15px;
       margin-bottom: 15px;
@@ -24,15 +20,19 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     label {
-      display: block;
-      margin-bottom: 8px;
       font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
     }
     .options label {
       font-weight: normal;
       margin-left: 20px;
       display: block;
-      margin-bottom: 6px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
     }
     button {
       background: #3498db;
@@ -43,22 +43,15 @@
       cursor: pointer;
       border-radius: 5px;
       display: block;
-      margin: 20px auto 40px auto;
-    }
-    .results {
-      background: #ecf0f1;
-      padding: 20px;
-      border-radius: 10px;
+      margin: 20px auto;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
     }
     th, td {
       border: 1px solid #bbb;
       padding: 8px;
-      text-align: left;
     }
   </style>
 </head>
@@ -73,13 +66,14 @@
     </div>
 
     <div id="questions"></div>
-
-    <button type="button" onclick="calculateResults()">Показати результати</button>
+    <button type="submit">Показати результати</button>
   </form>
 
   <div id="results" class="results"></div>
 
   <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyoQ5PekoOq1IVI541y53Im-sEMZy9-rZ8P-nZDOGh9EFU0E0Md2DQtH9REsxs4KZeG/exec";
+
     const questions = [
       { text: "Я швидко звикаю до нових умов", group: "Адаптивність" },
       { text: "Я краще працюю самостійно, ніж у команді", group: "Інтровертність" },
@@ -117,7 +111,6 @@
       groups[q.group].push(i);
     });
 
-    // Створюємо HTML питань
     const container = document.getElementById("questions");
     questions.forEach((q, i) => {
       const div = document.createElement("div");
@@ -130,19 +123,19 @@
       container.appendChild(div);
     });
 
-    function calculateResults() {
+    document.getElementById("testForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
       const surname = document.getElementById("surname").value.trim();
       const name = document.getElementById("name").value.trim();
       if (!surname || !name) {
-        alert("Будь ласка, введіть прізвище та ім'я.");
+        alert("Будь ласка, введіть прізвище та імʼя.");
         return;
       }
 
-      // Збираємо результати по групах
       const results = {};
       for (const group in groups) {
-        let sum = 0;
-        let count = 0;
+        let sum = 0, count = 0;
         groups[group].forEach(i => {
           const val = document.querySelector(`input[name=q${i}]:checked`);
           if (val) {
@@ -161,33 +154,32 @@
         }
       }
 
-      // Показати результати на сторінці
       let output = `<h2>Результати для ${surname} ${name}</h2><table><tr><th>Категорія</th><th>Середнє</th><th>Рівень</th></tr>`;
       for (const g in results) {
         output += `<tr><td>${g}</td><td>${results[g].avg}</td><td>${results[g].level}</td></tr>`;
       }
-      output += '</table>';
+      output += `</table>`;
       document.getElementById("results").innerHTML = output;
 
-      // Відправка результатів у Google Таблицю (підстав свій URL)
-      fetch("https://script.google.com/macros/s/AKfycbyoQ5PekoOq1IVI541y53Im-sEMZy9-rZ8P-nZDOGh9EFU0E0Md2DQtH9REsxs4KZeG/exec", {
+      fetch(scriptURL, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           surname: surname,
           name: name,
           results: results
-        }),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }).then(response => {
-        if (response.ok) {
-          console.log("Результати успішно надіслані");
-        } else {
-          console.error("Помилка при надсиланні результатів");
-        }
-      }).catch(e => console.error("Помилка мережі:", e));
-    }
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Успішно:", data);
+      })
+      .catch(error => {
+        console.error("Помилка при надсиланні:", error);
+      });
+    });
   </script>
 </body>
 </html>
