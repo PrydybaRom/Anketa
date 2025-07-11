@@ -19,15 +19,11 @@
 </head>
 <body>
   <h2>Анкета</h2>
-  <form id="surveyForm">
-    <label for="surname">Прізвище:</label>
-    <input type="text" id="surname" name="surname" required>
-
-    <label for="name">Ім’я:</label>
-    <input type="text" id="name" name="name" required>
-
-    <input type="submit" value="Надіслати">
-  </form>
+  <form method="POST" action="https://script.google.com/macros/s/AKfycbyoQ5PekoOq1IVI541y53Im-sEMZy9-rZ8P-nZDOGh9EFU0E0Md2DQtH9REsxs4KZeG/exec">
+  <input name="Email" type="email" placeholder="Email" required>
+  <input name="Name" type="text" placeholder="Name" required>
+  <button type="submit">Send</button>
+</form>
 
   <p id="status"></p>
 
