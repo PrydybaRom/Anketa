@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Опитування</title>
+  <title>Анкета</title>
   <style>
     body {
       font-family: Arial;
@@ -18,7 +18,7 @@
   </style>
 </head>
 <body>
-  <h2>Форма опитування</h2>
+  <h2>Анкета</h2>
   <form id="surveyForm">
     <label for="surname">Прізвище:</label>
     <input type="text" id="surname" name="surname" required>
@@ -38,7 +38,7 @@
       const surname = document.getElementById('surname').value;
       const name = document.getElementById('name').value;
 
-      fetch('https://script.google.com/macros/s/AKfycbxv8x-gA3KXlyxrhFvsOVM8mYrwZndq1nyAOJU8F__rb1jG6SABt5O_lvz0IpYHS_t2Mg/exec', {
+      fetch('ВАШ_URL_СКРІПТА', {
         method: 'POST',
         body: JSON.stringify({ surname, name }),
         headers: {
